@@ -27,3 +27,8 @@ class DeleteItem extends ItemsEvent {
 
   const DeleteItem(this.id);
 }
+
+class SearchItem extends ItemsEvent {
+  final String keyword;
+  const SearchItem(this.keyword);
+}

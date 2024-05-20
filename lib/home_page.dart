@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:items/bloc/items_bloc.dart';
 
 class HomePage extends StatelessWidget {
- const HomePage({super.key});
-
+  HomePage({super.key});
 
   void _showItemDialog(BuildContext context, int? id, String existingName) {
     final TextEditingController controller =
         TextEditingController(text: existingName);
-
     showDialog(
       context: context,
       builder: (context) {
@@ -44,6 +42,13 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  final TextEditingController keywordController = TextEditingController();
+
+  void _searchItems(BuildContext context) {
+    final searchTerm = keywordController.text;
+    context.read<ItemsBloc>().add(SearchItem(searchTerm));
+  }
+
   @override
   Widget build(BuildContext context) {
     context.read<ItemsBloc>().add(LoadItems());
@@ -56,43 +61,65 @@ class HomePage extends StatelessWidget {
           if (state is ItemLoadInProgress) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ItemLoadSuccess) {
-            return ListView.builder(
-              itemCount: state.items.length,
-              itemBuilder: (context, index) {
-                final item = state.items[index];
-                return Card(
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(item['name']),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+            return Column(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: TextField(
+                    controller: keywordController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      hintText: 'Search items',
+                      suffixIcon: const Icon(Icons.search),
+                    ),
+                    onChanged: (_) {
+                      _searchItems(context);
+                    },
+                  ),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: state.items.length,
+                  itemBuilder: (context, index) {
+                    final item = state.items[index];
+                    return Card(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                _showItemDialog(
-                                    context, item['id'], item['name']);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                context
-                                    .read<ItemsBloc>()
-                                    .add(DeleteItem(item['id']));
-                              },
+                            Text(item['name']),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    _showItemDialog(
+                                        context, item['id'], item['name']);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    context
+                                        .read<ItemsBloc>()
+                                        .add(DeleteItem(item['id']));
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                      ),
+                    );
+                  },
+                ),
+              ],
             );
           } else if (state is ItemOperationFailure) {
             return const Center(child: Text('Failed to load items'));

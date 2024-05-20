@@ -48,5 +48,13 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
-  
+
+  Future<List<Map<String, dynamic>>> searchItems(String keyword) async {
+    final db = await initDB();
+    return await db.query(
+      'items',
+      where: 'name LIKE ?',
+      whereArgs: ['%$keyword%'],
+    );
+  }
 }

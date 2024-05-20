@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ItemsBloc(DatabaseHelper()),
-      child: const MaterialApp(
+      child: MaterialApp(
         title: 'Flutter CRUD with Bloc',
         home: HomePage(),
       ),
